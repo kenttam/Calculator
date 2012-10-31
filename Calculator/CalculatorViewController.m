@@ -11,13 +11,16 @@
 
 @interface CalculatorViewController ()
 @property (nonatomic) BOOL userIsInTheMiddleOfEnteringANumber;
+@property (nonatomic) BOOL userHasEnteredDecimal;
 @property (nonatomic, strong) CalculatorBrain *brain;
 @end
 
 @implementation CalculatorViewController
 
 @synthesize display;
+@synthesize history;
 @synthesize userIsInTheMiddleOfEnteringANumber;
+@synthesize userHasEnteredDecimal;
 @synthesize brain = _brain;
 
 -(CalculatorBrain *)brain{
@@ -27,6 +30,14 @@
 
 - (IBAction)digitPressed:(UIButton *)sender {
     NSString *digit = [sender currentTitle];
+    if ([digit isEqualToString:@"."]){
+        if(self.userHasEnteredDecimal){
+            return;
+        }
+        else{
+            self.userHasEnteredDecimal = YES;
+        }
+    }
     if(self.userIsInTheMiddleOfEnteringANumber){
         self.display.text = [self.display.text stringByAppendingString:digit];
     }else{
@@ -42,11 +53,24 @@
     NSString *operation = [sender currentTitle];
     double result = [self.brain performOperation:operation];
     self.display.text = [NSString stringWithFormat:@"%g", result];
+    self.history.text = [self.history.text stringByAppendingString: [NSString stringWithFormat:@" %@", operation]];
+    self.userHasEnteredDecimal = NO;
 }
 - (IBAction)enterPressed {
 
     [self.brain pushOperand:[self.display.text doubleValue]];
     self.userIsInTheMiddleOfEnteringANumber = NO;
+    self.history.text = [self.history.text stringByAppendingString: [NSString stringWithFormat:@" %@",self.display.text]];
+    self.userHasEnteredDecimal = NO;
 }
+
+- (IBAction)clearPressed {
+    [self.brain clear];
+    self.display.text = @"0";
+    self.history.text = @"";
+    self.userHasEnteredDecimal = NO;
+    
+}
+
 
 @end

@@ -39,6 +39,10 @@
     [[self programStack] addObject:[NSNumber numberWithDouble:operand]];
 }
 
+-(void)pushVariable:(NSString *)operand{
+    [[self programStack] addObject:operand];
+}
+
 - (double)performOperation:(NSString *)operation
 {
     [self.programStack addObject:operation];
@@ -89,6 +93,19 @@
     NSMutableArray *stack= [program mutableCopy];
     
     return [self popOperandOffProgramStack:stack];
+}
+
++(double)runProgram:(id)program usingVariableValues:(NSDictionary *)variableValues{
+    NSMutableArray *stack = [program mutableCopy];
+    NSUInteger count = [stack count];
+    for (NSUInteger i = 0; i < count; i++) { //for each item
+        id temp = [variableValues objectForKey:[stack objectAtIndex: i]];
+        if(temp){  //try to get the equivalent from the dictionary
+            [stack replaceObjectAtIndex:i withObject:[NSNumber numberWithDouble:[temp doubleValue]]];
+        }
+    }
+    return [self popOperandOffProgramStack:stack];
+   
 }
 
 @end

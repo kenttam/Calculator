@@ -13,6 +13,7 @@
 @property (nonatomic) BOOL userIsInTheMiddleOfEnteringANumber;
 @property (nonatomic) BOOL userHasEnteredDecimal;
 @property (nonatomic, strong) CalculatorBrain *brain;
+@property (nonatomic, strong) NSDictionary *dictionary;
 @end
 
 @implementation CalculatorViewController
@@ -22,6 +23,12 @@
 @synthesize userIsInTheMiddleOfEnteringANumber;
 @synthesize userHasEnteredDecimal;
 @synthesize brain = _brain;
+@synthesize dictionary = _dictionary;
+
+-(NSDictionary *)dictionary{
+    if(!_dictionary) _dictionary = [[NSDictionary alloc] init];
+    return _dictionary;
+}
 
 -(CalculatorBrain *)brain{
     if(!_brain) _brain = [[CalculatorBrain alloc] init];
@@ -57,8 +64,12 @@
     self.userHasEnteredDecimal = NO;
 }
 - (IBAction)enterPressed {
-
-    [self.brain pushOperand:[self.display.text doubleValue]];
+    if(!isnumber([self.display.text characterAtIndex:0])){
+        [self.brain pushVariable:self.display.text];
+    }
+    else{
+        [self.brain pushOperand:[self.display.text doubleValue]];
+    }
     self.userIsInTheMiddleOfEnteringANumber = NO;
     self.history.text = [self.history.text stringByAppendingString: [NSString stringWithFormat:@" %@",self.display.text]];
     self.userHasEnteredDecimal = NO;
@@ -72,5 +83,14 @@
     
 }
 
+- (IBAction)testPressed:(id)sender {
+    NSString *name = [sender currentTitle];
+    if([name isEqualToString:@"Test 1"]){
+        self.dictionary = [[NSDictionary alloc] initWithObjectsAndKeys:
+                           @"3", @"a", @"4", @"b", nil];
+        self.display.text = [NSString stringWithFormat:@"%f",[[self.brain class]runProgram:self.brain.program
+                  usingVariableValues:self.dictionary]];
+    }
+}
 
 @end

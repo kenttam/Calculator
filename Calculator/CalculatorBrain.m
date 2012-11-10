@@ -27,9 +27,7 @@
     return [self.programStack copy];
 }
 
-+(NSString *)descriptionOfProgram:(id)program{
-    return @" ";
-}
+
 
 -(void)setprogramStack:(NSMutableArray *) anArray{
     _programStack = anArray;
@@ -46,7 +44,86 @@
 - (double)performOperation:(NSString *)operation
 {
     [self.programStack addObject:operation];
+    //NSString *result = [[self class] descriptionOfProgram:self.program];
     return [[self class] runProgram:self.program];
+}
+
++(NSString *)descriptionOfProgram:(id)program{
+    NSMutableArray *stack = [program mutableCopy];
+    NSMutableString *result = [NSMutableString stringWithCapacity:50];
+    Boolean firstTime = YES;
+    while ([stack count] != 0){
+        if(!firstTime){
+            NSMutableString *temp = [NSMutableString stringWithCapacity:50];
+            [temp setString:[self descriptionOfTopOfStack:stack]];
+            [temp appendString:@", "];
+            [temp appendString:result];
+            [result setString:temp];
+        }
+        else{
+            [result appendString:[self descriptionOfTopOfStack:stack]];
+        }
+        firstTime = NO;
+    }
+    return result;
+}
+
+
++(NSString *)descriptionOfTopOfStack:(NSMutableArray *)stack{
+    NSMutableString *result = [NSMutableString stringWithCapacity:50];
+    
+    id topOfStack = [stack lastObject];
+    if (topOfStack) [stack removeLastObject];
+    
+    if([topOfStack isKindOfClass:[NSNumber class]]){
+        [result appendString:[topOfStack stringValue]];
+    }
+    else if([topOfStack isKindOfClass:[NSString class]]){
+        NSString *operation = topOfStack;
+        NSSet *twoOperandOperations = [NSSet setWithObjects:@"+", @"-", @"*", @"/", nil];
+        NSSet *oneOperandOperations = [NSSet setWithObjects:@"sqrt", @"sin", @"cos", nil];
+        NSSet *zeroOperandOperations = [NSSet setWithObject:@"π"];
+        if([twoOperandOperations containsObject:operation]){
+            NSString *temp = [self descriptionOfTopOfStack:stack];
+            NSString *newItem = [self descriptionOfTopOfStack:stack];
+            if([[self class] stringIsNumeric:newItem] && ([topOfStack isEqual:@"*"] || [topOfStack isEqual:@"/"])){
+                [result appendString:@"("];
+                [result appendString:newItem];
+                [result appendString:@")"];
+            }
+            else{
+                [result appendString:newItem];
+            }
+            [result appendString:topOfStack];
+            if([[self class] stringIsNumeric:temp] && ([topOfStack isEqual:@"*"] || [topOfStack isEqual:@"/"])){
+                [result appendString:@"("];
+                [result appendString:temp];
+                [result appendString:@")"];
+            }
+            else{
+                [result appendString:temp];
+            }
+        }else if([oneOperandOperations containsObject:operation]){
+            [result appendString:topOfStack];
+            [result appendString:@"("];
+            [result appendString:[self descriptionOfTopOfStack:stack]];
+            [result appendString:@")"];
+        }else if([zeroOperandOperations containsObject:operation]){
+            [result appendString:topOfStack];
+        }
+        else{
+            [result appendString:topOfStack]; //variables
+        }
+    }
+    return result;
+
+    
+}
+
++(BOOL)stringIsNumeric:(NSString *)str {
+    NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
+    NSNumber *number = [formatter numberFromString:str];
+    return !!number; // If the string is not numeric, number will be nil
 }
 
 +(double)popOperandOffProgramStack:(NSMutableArray *)stack{
@@ -70,11 +147,11 @@
         }else if([operation isEqualToString:@"/"]){
             double divisor = [self popOperandOffProgramStack:stack];
             if (divisor) result = [self popOperandOffProgramStack:stack] / divisor;
-        }else if([operation isEqualToString:@"Sin"]){
+        }else if([operation isEqualToString:@"sin"]){
             result = sin([self popOperandOffProgramStack:stack]);
-        }else if([operation isEqualToString:@"Cos"]){
+        }else if([operation isEqualToString:@"cos"]){
             result = cos([self popOperandOffProgramStack:stack]);
-        }else if([operation isEqualToString:@"Sqrt"]){
+        }else if([operation isEqualToString:@"sqrt"]){
             result = sqrt([self popOperandOffProgramStack:stack]);
         }else if([operation isEqualToString:@"π"]){
             result = M_PI;
@@ -107,5 +184,6 @@
     return [self popOperandOffProgramStack:stack];
    
 }
+
 
 @end

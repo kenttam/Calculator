@@ -60,7 +60,7 @@
     NSString *operation = [sender currentTitle];
     double result = [self.brain performOperation:operation];
     self.display.text = [NSString stringWithFormat:@"%g", result];
-    self.history.text = [self.history.text stringByAppendingString: [NSString stringWithFormat:@" %@", operation]];
+    self.history.text = [[self.brain class] descriptionOfProgram:self.brain.program];
     self.userHasEnteredDecimal = NO;
 }
 - (IBAction)enterPressed {
@@ -88,7 +88,7 @@
     if([name isEqualToString:@"Test 1"]){
         self.dictionary = [[NSDictionary alloc] initWithObjectsAndKeys:
                            @"3", @"a", @"4", @"b", nil];
-        self.display.text = [NSString stringWithFormat:@"%f",[[self.brain class]runProgram:self.brain.program
+        self.display.text = [NSString stringWithFormat:@"%g",[[self.brain class]runProgram:self.brain.program
                   usingVariableValues:self.dictionary]];
     }
 }

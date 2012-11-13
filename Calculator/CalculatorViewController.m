@@ -90,6 +90,34 @@
                            @"3", @"a", @"4", @"b", nil];
         self.display.text = [NSString stringWithFormat:@"%g",[[self.brain class]runProgram:self.brain.program
                   usingVariableValues:self.dictionary]];
+        NSMutableString *tempString = [NSMutableString stringWithCapacity:30];
+        [tempString setString:@""];
+        NSUInteger count = [self.brain.program count];
+        for (NSUInteger i = 0; i < count; i++) { //for each item
+            id temp = [self.dictionary objectForKey:[self.brain.program objectAtIndex: i]];
+            if(temp){  //try to get the equivalent from the dictionary
+                [tempString appendString:[self.brain.program objectAtIndex:i]];
+                [tempString appendString:@"= "];
+                [tempString appendString:temp];
+                [tempString appendString:@"  "];
+            }
+        }
+        self.variables.text = tempString;
+    }
+}
+- (IBAction)undoPressed:(id)sender {
+    if(self.userIsInTheMiddleOfEnteringANumber){
+        if([self.display.text length] > 1){
+            self.display.text = [self.display.text substringToIndex:[self.display.text length]-1];
+        }
+        else{
+            self.display.text = @"";
+            self.userIsInTheMiddleOfEnteringANumber = NO;
+        }
+    }
+    else{
+        [self.brain clearTopOfStack];
+        self.history.text = [[self.brain class] descriptionOfProgram:self.brain.program];
     }
 }
 

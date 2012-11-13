@@ -27,6 +27,9 @@
     return [self.programStack copy];
 }
 
+-(void)clearTopOfStack{
+    [self.programStack removeLastObject];
+}
 
 
 -(void)setprogramStack:(NSMutableArray *) anArray{
@@ -175,6 +178,7 @@
 +(double)runProgram:(id)program usingVariableValues:(NSDictionary *)variableValues{
     NSMutableArray *stack = [program mutableCopy];
     NSUInteger count = [stack count];
+    
     for (NSUInteger i = 0; i < count; i++) { //for each item
         id temp = [variableValues objectForKey:[stack objectAtIndex: i]];
         if(temp){  //try to get the equivalent from the dictionary
